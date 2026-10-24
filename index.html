@@ -288,6 +288,18 @@
             </div>
         </div>
     </div>
+    <!-- نافذة تثبيت التطبيق المخصصة -->
+<div id="installAppModal" class="modal" style="z-index: 9999;">
+    <div class="modal-content" style="text-align: center; max-width: 350px;">
+        <div style="font-size: 50px; margin-bottom: 10px;">🎓</div>
+        <h3 style="font-size: 22px;">تثبيت التطبيق</h3>
+        <p style="margin-bottom: 20px; color: var(--muted); font-size: 15px;">قم بتثبيت تطبيق المنصة على جهازك للوصول السريع للدروس والامتحانات.</p>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn-primary" id="customInstallBtn" style="padding: 12px; font-size: 16px; flex: 1;">تثبيت</button>
+            <button class="btn-secondary" onclick="closeModal('installAppModal')" style="padding: 12px; font-size: 16px; flex: 1;">لاحقاً</button>
+        </div>
+    </div>
+</div>
         <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
         import { getFirestore, collection, addDoc, getDocs, doc, deleteDoc, updateDoc, query, where } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
@@ -636,26 +648,34 @@
         });
     </script>
         <script>
-        // كود إظهار إشعار تثبيت التطبيق
-        let deferredPrompt;
+    // كود إظهار إشعار تثبيت التطبيق (بشكل مخصص)
+    let deferredPrompt;
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+        // نمنع المتصفح من إظهار الإشعار الافتراضي بتاعه
+        e.preventDefault();
+        // نحفظ الإشعار عشان نستخدمه لما ندوس على زرار التثبيت بتاعنا
+        deferredPrompt = e;
         
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            setTimeout(() => {
-                if (confirm('هل تريد تثبيت تطبيق منصة البكالوريا على جهازك للوصول السريع؟')) {
-                    deferredPrompt.prompt();
-                    deferredPrompt.userChoice.then((choiceResult) => {
-                        if (choiceResult.outcome === 'accepted') {
-                            console.log('تم تثبيت التطبيق بنجاح');
-                        }
-                        deferredPrompt = null;
-                    });
-                }
-            }, 3000);
-        });
-    </script>
+        // نستنى 3 ثواني عشان المستخدم يشوف الموقع الأول، وبعدين نفتح النافذة بتاعتنا
+        setTimeout(() => {
+            document.getElementById('installAppModal').classList.add('active');
+        }, 3000);
+    });
+
+    // لما المستخدم يدوس على زرار "تثبيت" اللي إحنا عملينه
+    document.getElementById('customInstallBtn').addEventListener('click', async () => {
+        if (deferredPrompt) {
+            deferredPrompt.prompt(); // نفتح رسالة التثبيت بتاعة المتصفح
+            const { outcome } = await deferredPrompt.userChoice;
+            if (outcome === 'accepted') {
+                console.log('تم التثبيت بنجاح');
+            }
+            deferredPrompt = null;
+            closeModal('installAppModal'); // نقفل النافذة بتاعتنا
+        }
+    });
+        </script>
 </body>
 </html>
 </body>
