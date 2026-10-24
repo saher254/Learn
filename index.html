@@ -12,7 +12,7 @@
 
   gtag('config', 'G-6011L0T99F');
 </script>
-    
+    <link rel="manifest" href="manifest.json">
     <meta charset="UTF-8">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -635,5 +635,28 @@
             }, 1000);
         });
     </script>
+        <script>
+        // كود إظهار إشعار تثبيت التطبيق
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            setTimeout(() => {
+                if (confirm('هل تريد تثبيت تطبيق منصة البكالوريا على جهازك للوصول السريع؟')) {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            console.log('تم تثبيت التطبيق بنجاح');
+                        }
+                        deferredPrompt = null;
+                    });
+                }
+            }, 3000);
+        });
+    </script>
+</body>
+</html>
 </body>
 </html>
